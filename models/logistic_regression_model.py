@@ -2,30 +2,32 @@ from typing import Union
 
 import numpy as np
 from easydict import EasyDict
+from logs.Logger import Logger
 
 
 class LogReg:
 
-    def __init__(self, cfg: EasyDict, number_classes: int, input_vector_dimension: int):
+    def __init__(self, cfg: EasyDict, number_classes: int, input_vector_dimension: int, experiment_name: str):
         self.k = number_classes
         self.d = input_vector_dimension
         self.cfg = cfg
+        self.neptune_logger = Logger(cfg.env_path, cfg.project_name, experiment_name)
         getattr(self, f'weights_init_{cfg.weights_init_type.name}')(**cfg.weights_init_kwargs)
 
-    def weights_init_normal(self, sigma):
-        # TODO init weights with values from normal distribution
+    def weights_init_xavier_normal(self):
+        # TODO init weights with Xavier normal W ~ N(0, sqrt(2 / (D + K)))
         pass
 
-    def weights_init_uniform(self):
-        # init weights with values from uniform distribution
+    def weights_init_xavier_uniform(self):
+        # init weights with Xavier uniform W ~ U(-sqrt(6 / (D + K)), sqrt(6 / (D + K)))
         pass
 
-    def weights_init_xavier(self):
-        # Xavier weights initialisation
+    def weights_init_he_normal(self):
+        # init weights with He normal W ~ N(0, sqrt(2 / D))
         pass
 
-    def weights_init_he(self):
-        #  He weights initialisation
+    def weights_init_he_uniform(self):
+        #  init weights with He uniform W ~ U(-sqrt(6 / D), sqrt(6 / D)
         pass
 
     def __softmax(self, model_output: np.ndarray) -> np.ndarray:
@@ -49,7 +51,7 @@ class LogReg:
 
                Returns:
                np.ndarray: The softmax probabilities.
-            TODO impement this function
+            TODO implement this function
                """
         pass
 
@@ -110,6 +112,7 @@ class LogReg:
         #
         #  update weights
         #   you can add some other steps if you need
+        # log your results in Neptune
         """
         :param targets_train: onehot-encoding
         :param epoch: number of loop iteration
@@ -119,7 +122,7 @@ class LogReg:
     def gradient_descent_epoch(self, inputs_train: np.ndarray, targets_train: np.ndarray,
                                inputs_valid: Union[np.ndarray, None] = None,
                                targets_valid: Union[np.ndarray, None] = None):
-        #  loop stopping criteria - number of iterations of gradient_descent
+        # loop stopping criteria - number of iterations of gradient_descent
         # while not stopping criteria
         #   self.__gradient_descent_step(inputs, targets)
         for epoch in range(self.cfg.nb_epoch):
